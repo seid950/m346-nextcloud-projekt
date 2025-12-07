@@ -1,0 +1,111 @@
+# Architektur
+
+## Systemübersicht
+
+Unser Nextcloud-Deployment besteht aus zwei separaten EC2-Instanzen, die über ein privates Netzwerk miteinander kommunizieren.
+
+## Architektur-Diagramm
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        AWS Cloud (us-east-1)                │
+│                                                             │
+│  ┌──────────────────────┐        ┌──────────────────────┐ │
+│  │   Webserver          │        │   Database Server    │ │
+│  │   EC2 t2.micro       │◄──────►│   EC2 t2.micro      │ │
+│  │                      │  3306  │                      │ │
+│  │  - Ubuntu 22.04      │        │  - Ubuntu 22.04      │ │
+│  │  - Apache 2.4        │        │  - MariaDB 10.6      │ │
+│  │  - PHP 8.1           │        │  - nextcloud DB      │ │
+│  │  - Nextcloud 28.0.1  │        │                      │ │
+│  │                      │        │                      │ │
+│  │  Public IP:          │        │  Private IP:         │ │
+│  │  52.90.54.109        │        │  172.31.30.69        │ │
+│  └──────────────────────┘        └──────────────────────┘ │
+│           │                                                │
+│           │ Port 80 (HTTP)                                 │
+│           ▼                                                │
+│  ┌──────────────────────┐                                 │
+│  │   Internet           │                                 │
+│  │   Benutzer-Zugriff   │                                 │
+│  └──────────────────────┘                                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Komponenten
+
+### 1. Webserver (Public)
+
+**Funktion:** Hostet die Nextcloud-Applikation und ist öffentlich erreichbar
+
+**Spezifikationen:**
+- **Instance Type:** t2.micro (1 vCPU, 1 GB RAM)
+- **OS:** Ubuntu 22.04 LTS
+- **Software:**
+  - Apache 2.4 (Webserver)
+  - PHP 8.1 mit Extensions
+  - Nextcloud 28.0.1
+
+**Netzwerk:**
+- Public IP für Internet-Zugriff
+- Security Group öffnet Port 80 (HTTP) und 22 (SSH)
+
+### 2. Datenbank-Server (Private)
+
+**Funktion:** Speichert alle Nextcloud-Daten in MariaDB
+
+**Spezifikationen:**
+- **Instance Type:** t2.micro (1 vCPU, 1 GB RAM)
+- **OS:** Ubuntu 22.04 LTS
+- **Software:**
+  - MariaDB 10.6
+  - nextcloud Datenbank
+
+**Netzwerk:**
+- Nur Private IP (nicht öffentlich erreichbar)
+- Security Group öffnet Port 3306 nur für Webserver
+- SSH Port 22 für Debugging
+
+## Security Groups
+
+### Webserver Security Group (nextcloud-web-sg)
+
+| Port | Protokoll | Quelle | Zweck |
+|------|-----------|--------|-------|
+| 80 | TCP | 0.0.0.0/0 | HTTP-Zugriff für Benutzer |
+| 22 | TCP | 0.0.0.0/0 | SSH für Administration |
+
+### Database Security Group (nextcloud-db-sg)
+
+| Port | Protokoll | Quelle | Zweck |
+|------|-----------|--------|-------|
+| 3306 | TCP | nextcloud-web-sg | MySQL von Webserver |
+| 22 | TCP | 0.0.0.0/0 | SSH für Administration |
+
+## Datenfluss
+
+1. **Benutzer → Webserver:**
+   - Browser sendet HTTP-Request an Public IP Port 80
+   - Apache empfängt Request und leitet an PHP weiter
+
+2. **Webserver → Datenbank:**
+   - PHP/Nextcloud verbindet sich über Private IP Port 3306
+   - MariaDB authentifiziert mit Credentials
+   - Daten werden ausgetauscht (SQL Queries)
+
+3. **Datenbank → Webserver → Benutzer:**
+   - Daten werden zurück an Webserver gesendet
+   - PHP rendert HTML
+   - Apache sendet Response an Browser
+
+## Sicherheitskonzept
+
+✅ **Datenbank nicht öffentlich:** Nur über private IP erreichbar  
+✅ **Security Group Isolation:** DB nur von Webserver erreichbar  
+✅ **Sichere Passwörter:** Automatisch generiert (24 Zeichen)  
+✅ **Firewall-Regeln:** Minimal notwendige Ports geöffnet  
+
+⚠️ **Produktions-Verbesserungen:**
+- HTTPS mit SSL/TLS Zertifikat
+- SSH-Zugriff auf bekannte IPs beschränken
+- Regelmäßige Updates und Patches
+- Backup-Strategie implementieren
