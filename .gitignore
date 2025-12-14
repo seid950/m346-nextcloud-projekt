@@ -1,0 +1,27 @@
+# Deployment-generierte Dateien
+deployment-info.json
+db-userdata.sh
+web-userdata.sh
+
+# Lokale Konfiguration
+*.local
+
+# Editor-Dateien
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# AWS CLI temporäre Dateien
+.aws/
+
+# Logs
+*.log
+
+# Backup-Dateien
+*.bak
+*.backup
