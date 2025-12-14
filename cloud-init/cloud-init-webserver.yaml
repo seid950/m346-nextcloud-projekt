@@ -1,0 +1,10 @@
+  GNU nano 8.3                                                                                                                 cloud-init-webserver.yaml                                                                                                                 Modified  
+#cloud-config
+# Webserver - User Data Script wird verwendet
+# Dieses File dient nur der Dokumentation
+write_files:
+  - path: /root/setup-info.txt
+    content: |
+      Webserver setup via user-data script
+      DB Host: 172.31.29.172
+      DB Password: 1AqAzc7aoAFa04wC3xerdJLK

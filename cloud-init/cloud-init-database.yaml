@@ -1,0 +1,11 @@
+  GNU nano 8.3                                                                                                                 cloud-init-database.yaml                                                                                                                            
+#cloud-config
+# Datenbank Server - User Data Script wird verwendet
+# Dieses File dient nur der Dokumentation
+write_files:
+  - path: /root/setup-info.txt
+    content: |
+      Database setup via user-data script
+      Root Password: ow8YIROK6tcNhD4cpTXIcwdB
+      Nextcloud Password: 1AqAzc7aoAFa04wC3xerdJLK
+
