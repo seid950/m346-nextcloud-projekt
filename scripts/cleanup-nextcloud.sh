@@ -63,13 +63,13 @@ echo ""
 # ==============================================
 # 2. BESTÄTIGUNG
 # ==============================================
-echo -e "${RED}⚠️  ACHTUNG: Folgende Ressourcen werden GELÖSCHT:${NC}"
+echo -e "${RED}  ACHTUNG: Folgende Ressourcen werden GELÖSCHT:${NC}"
 echo ""
 
-[ ! -z "$DB_INSTANCE_ID" ] && echo "  🖥️  Database Instance: $DB_INSTANCE_ID"
-[ ! -z "$WEB_INSTANCE_ID" ] && echo "  🖥️  Webserver Instance: $WEB_INSTANCE_ID"
-[ ! -z "$DB_SG_ID" ] && echo "  🛡️  Database Security Group: $DB_SG_ID"
-[ ! -z "$WEB_SG_ID" ] && echo "  🛡️  Webserver Security Group: $WEB_SG_ID"
+[ ! -z "$DB_INSTANCE_ID" ] && echo "    Database Instance: $DB_INSTANCE_ID"
+[ ! -z "$WEB_INSTANCE_ID" ] && echo "    Webserver Instance: $WEB_INSTANCE_ID"
+[ ! -z "$DB_SG_ID" ] && echo "    Database Security Group: $DB_SG_ID"
+[ ! -z "$WEB_SG_ID" ] && echo "    Webserver Security Group: $WEB_SG_ID"
 
 echo ""
 read -p "Fortfahren? (ja/nein): " CONFIRM
@@ -169,5 +169,5 @@ echo "Gelöschte Ressourcen:"
 [ ! -z "$WEB_INSTANCE_ID" ] && echo "  ✓ Webserver Instance"
 echo "  ✓ Security Groups"
 echo ""
-echo -e "${YELLOW}💡 Tipp: Überprüfe in der AWS Console ob alles weg ist.${NC}"
+echo -e "${YELLOW} Tipp: Überprüfe in der AWS Console ob alles weg ist.${NC}"
 echo ""

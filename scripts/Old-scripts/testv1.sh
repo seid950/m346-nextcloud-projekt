@@ -277,14 +277,14 @@ echo -e "${GREEN}   Instanz laeuft${NC}"
 echo -e "${GREEN}   Private IP: ${BOLD}${DB_PRIVATE_IP}${NC}"
 echo ""
 echo -e "${YELLOW}   Warte 120 Sekunden fuer MariaDB Installation & Konfiguration...${NC}"
-echo -n "   "
 
-# Progress Bar - ein Punkt alle 10 Sekunden
-for i in {1..12}; do
-    sleep 10
-    echo -n "."
+# Progress Bar
+for i in {1..120}; do
+    if [ $((i % 10)) -eq 0 ]; then
+        echo -ne "${CYAN}   [PROGRESS]${NC}"
+    fi
+    sleep 1
 done
-echo ""
 echo ""
 
 echo -e "${GREEN}${BOLD}   ✓ DATABASE SERVER BEREIT${NC}"
@@ -494,19 +494,15 @@ printf "${CYAN}|${NC}     Security Group: ${GREEN}%-45s${NC} ${CYAN}|${NC}\n" "$
 printf "${CYAN}|${NC} %-69s ${CYAN}|${NC}\n" ""
 echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
 echo ""
+
+echo -e "${BOLD}${MAGENTA}NEXTCLOUD URL:${NC}"
+echo -e "${GREEN}${BOLD}   http://${WEB_PUBLIC_IP}${NC}"
 echo ""
 
-echo -e "${CYAN}+=========================================================================${NC}"
-echo -e "${CYAN}|${NC}                                                                         ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}                       ${BOLD}${GREEN}NEXTCLOUD INSTALLATION${NC}                        ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}                                                                         ${CYAN}|${NC}"
-printf "${CYAN}|${NC}                          ${BOLD}${MAGENTA}%-38s${NC}  ${CYAN}|${NC}\n" "http://$WEB_PUBLIC_IP"
-echo -e "${CYAN}|${NC}                                                                         ${CYAN}|${NC}"
-echo -e "${CYAN}+=========================================================================${NC}"
-echo ""
-echo ""
-
-echo -e "${YELLOW}${BOLD}WICHTIG:${NC} Warte ${YELLOW}2-3 Minuten${NC} bis Nextcloud komplett installiert ist"
+echo -e "${YELLOW}${BOLD}WICHTIG:${NC}"
+echo -e "   - Warte ${YELLOW}2-3 Minuten${NC} bis Nextcloud komplett installiert ist"
+echo -e "   - Oeffne dann die URL im Browser"
+echo -e "   - Der Setup-Assistent wird automatisch angezeigt"
 echo ""
 
 echo -e "${BOLD}${BLUE}DATENBANK-ZUGANGSDATEN FUER SETUP-ASSISTENT:${NC}"
@@ -518,6 +514,13 @@ printf "${CYAN}|${NC}   Datenbank-Benutzer:    ${GREEN}%-42s${NC} ${CYAN}|${NC}\
 printf "${CYAN}|${NC}   Datenbank-Passwort:    ${GREEN}%-42s${NC} ${CYAN}|${NC}\n" "$DB_NC_PASSWORD"
 printf "${CYAN}|${NC}   Datenverzeichnis:      ${GREEN}%-42s${NC} ${CYAN}|${NC}\n" "/var/nextcloud-data"
 echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
+echo ""
+
+echo -e "${BOLD}${BLUE}INSTALLATION ABSCHLIESSEN:${NC}"
+echo -e "   1. Oeffne: ${GREEN}http://${WEB_PUBLIC_IP}${NC}"
+echo -e "   2. Erstelle Admin-Account (Username + Passwort frei waehlbar)"
+echo -e "   3. Trage obige Datenbank-Daten ein"
+echo -e "   4. Klicke ${GREEN}'Installation abschliessen'${NC}"
 echo ""
 
 echo -e "${BOLD}${BLUE}GENERIERTE DATEIEN:${NC}"

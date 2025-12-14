@@ -53,33 +53,33 @@ INSTANCE_TYPE="t2.micro"
 KEY_NAME="vockey"
 
 # Sichere Passwörter generieren
-echo -e "${YELLOW}Generiere sichere Passwoerter...${NC}"
+echo -e "${YELLOW}🔐 Generiere sichere Passwörter...${NC}"
 DB_ROOT_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-24)
 DB_NC_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-24)
-echo -e "${GREEN}   Root-Passwort generiert (24 Zeichen, alphanumerisch)${NC}"
-echo -e "${GREEN}   Nextcloud-DB-Passwort generiert (24 Zeichen, alphanumerisch)${NC}"
+echo -e "${GREEN}   ✓ Root-Passwort generiert (24 Zeichen, alphanumerisch)${NC}"
+echo -e "${GREEN}   ✓ Nextcloud-DB-Passwort generiert (24 Zeichen, alphanumerisch)${NC}"
 echo ""
 
 # Deployment-Konfiguration anzeigen
-echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
-echo -e "${CYAN}|${NC} ${BOLD}DEPLOYMENT-KONFIGURATION${NC}                                          ${CYAN}|${NC}"
-echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
-echo -e "${CYAN}|${NC}  AWS Region:           ${GREEN}us-east-1${NC}                                   ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}  Instance Type:        ${GREEN}t2.micro${NC}                                    ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}  AMI ID:               ${GREEN}ami-03deb8c961063af8c${NC}                ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}  Key Pair:             ${GREEN}vockey${NC}                                      ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}  Nextcloud Version:    ${GREEN}Latest Stable${NC}                               ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}  Webserver:            ${GREEN}Apache 2.4 + PHP 8.1${NC}                         ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}  Datenbank:            ${GREEN}MariaDB 10.6${NC}                                 ${CYAN}|${NC}"
-echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
+echo -e "${CYAN}┌─────────────────────────────────────────────────────────────────────┐${NC}"
+echo -e "${CYAN}│${NC} ${BOLD}DEPLOYMENT-KONFIGURATION${NC}                                          ${CYAN}│${NC}"
+echo -e "${CYAN}├─────────────────────────────────────────────────────────────────────┤${NC}"
+echo -e "${CYAN}│${NC}  AWS Region:           ${GREEN}${REGION}${NC}                                   ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Instance Type:        ${GREEN}${INSTANCE_TYPE}${NC}                                  ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  AMI ID:               ${GREEN}${AMI_ID}${NC}              ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Key Pair:             ${GREEN}${KEY_NAME}${NC}                                    ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Nextcloud Version:    ${GREEN}Latest Stable${NC}                             ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Webserver:            ${GREEN}Apache 2.4 + PHP 8.1${NC}                       ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Datenbank:            ${GREEN}MariaDB 10.6${NC}                               ${CYAN}│${NC}"
+echo -e "${CYAN}└─────────────────────────────────────────────────────────────────────┘${NC}"
 echo ""
 
 # Bestätigung
-echo -e "${YELLOW}${BOLD}ACHTUNG:${NC} Dieses Script wird folgende Aktionen ausfuehren:"
-echo -e "   - Alte Nextcloud-Instanzen terminieren"
-echo -e "   - Neue Security Groups erstellen"
-echo -e "   - 2 EC2-Instanzen starten (Database + Webserver)"
-echo -e "   - Nextcloud vollautomatisch installieren"
+echo -e "${YELLOW}${BOLD}⚠️  ACHTUNG:${NC} Dieses Script wird folgende Aktionen ausführen:"
+echo -e "   ${CYAN}•${NC} Alte Nextcloud-Instanzen terminieren"
+echo -e "   ${CYAN}•${NC} Neue Security Groups erstellen"
+echo -e "   ${CYAN}•${NC} 2 EC2-Instanzen starten (Database + Webserver)"
+echo -e "   ${CYAN}•${NC} Nextcloud vollautomatisch installieren"
 echo ""
 echo -e -n "${BOLD}Deployment starten? [${GREEN}j${NC}${BOLD}/${RED}n${NC}${BOLD}]:${NC} "
 read -r CONFIRM
@@ -108,19 +108,19 @@ OLD_INSTANCES=$(aws ec2 describe-instances \
     --region $REGION 2>/dev/null || true)
 
 if [ ! -z "$OLD_INSTANCES" ]; then
-    echo -e "${YELLOW}   Gefundene Instanzen: ${OLD_INSTANCES}${NC}"
-    echo -e "${YELLOW}   Terminiere alte Instanzen...${NC}"
+    echo -e "${YELLOW}   ⚙️  Gefundene Instanzen: ${OLD_INSTANCES}${NC}"
+    echo -e "${YELLOW}   🗑️  Terminiere alte Instanzen...${NC}"
     aws ec2 terminate-instances --instance-ids $OLD_INSTANCES --region $REGION > /dev/null
-    echo -e "${YELLOW}   Warte auf Terminierung...${NC}"
+    echo -e "${YELLOW}   ⏳ Warte auf Terminierung...${NC}"
     aws ec2 wait instance-terminated --instance-ids $OLD_INSTANCES --region $REGION 2>/dev/null || sleep 30
-    echo -e "${GREEN}   Alte Instanzen erfolgreich entfernt${NC}"
+    echo -e "${GREEN}   ✓ Alte Instanzen erfolgreich entfernt${NC}"
 else
-    echo -e "${GREEN}   Keine alten Instanzen gefunden${NC}"
+    echo -e "${GREEN}   ✓ Keine alten Instanzen gefunden${NC}"
 fi
 
-echo -e "${YELLOW}   Loesche alte Security Groups...${NC}"
-aws ec2 delete-security-group --group-name nextcloud-web-sg --region $REGION 2>/dev/null && echo -e "${GREEN}   Web-SG geloescht${NC}" || echo -e "${BLUE}   Web-SG nicht vorhanden${NC}"
-aws ec2 delete-security-group --group-name nextcloud-db-sg --region $REGION 2>/dev/null && echo -e "${GREEN}   DB-SG geloescht${NC}" || echo -e "${BLUE}   DB-SG nicht vorhanden${NC}"
+echo -e "${YELLOW}   🗑️  Lösche alte Security Groups...${NC}"
+aws ec2 delete-security-group --group-name nextcloud-web-sg --region $REGION 2>/dev/null && echo -e "${GREEN}   ✓ Web-SG gelöscht${NC}" || echo -e "${BLUE}   ℹ Web-SG nicht vorhanden${NC}"
+aws ec2 delete-security-group --group-name nextcloud-db-sg --region $REGION 2>/dev/null && echo -e "${GREEN}   ✓ DB-SG gelöscht${NC}" || echo -e "${BLUE}   ℹ DB-SG nicht vorhanden${NC}"
 sleep 5
 
 echo -e "${GREEN}${BOLD}   ✓ CLEANUP ABGESCHLOSSEN${NC}"
@@ -132,7 +132,7 @@ echo -e "${BOLD}[PHASE 2/7]${NC} ${MAGENTA}SECURITY GROUPS KONFIGURATION${NC}"
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════════════${NC}"
 echo ""
 
-echo -e "${YELLOW}   Erstelle Security Groups...${NC}"
+echo -e "${YELLOW}   🛡️  Erstelle Security Groups...${NC}"
 
 DB_SG_ID=$(aws ec2 create-security-group \
     --group-name nextcloud-db-sg \
@@ -148,23 +148,23 @@ WEB_SG_ID=$(aws ec2 create-security-group \
     --query 'GroupId' \
     --output text)
 
-echo -e "${GREEN}   Database SG erstellt:  ${BOLD}${DB_SG_ID}${NC}"
-echo -e "${GREEN}   Webserver SG erstellt: ${BOLD}${WEB_SG_ID}${NC}"
+echo -e "${GREEN}   ✓ Database SG erstellt:  ${BOLD}${DB_SG_ID}${NC}"
+echo -e "${GREEN}   ✓ Webserver SG erstellt: ${BOLD}${WEB_SG_ID}${NC}"
 echo ""
 
-echo -e "${YELLOW}   Konfiguriere Firewall-Regeln...${NC}"
+echo -e "${YELLOW}   🔒 Konfiguriere Firewall-Regeln...${NC}"
 
 aws ec2 authorize-security-group-ingress --group-id $WEB_SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 --region $REGION > /dev/null
-echo -e "${GREEN}   Webserver:  Port 80 (HTTP) offen fuer 0.0.0.0/0${NC}"
+echo -e "${GREEN}   ✓ Webserver:  Port 80 (HTTP) offen für 0.0.0.0/0${NC}"
 
 aws ec2 authorize-security-group-ingress --group-id $WEB_SG_ID --protocol tcp --port 22 --cidr 0.0.0.0/0 --region $REGION > /dev/null
-echo -e "${GREEN}   Webserver:  Port 22 (SSH) offen fuer 0.0.0.0/0${NC}"
+echo -e "${GREEN}   ✓ Webserver:  Port 22 (SSH) offen für 0.0.0.0/0${NC}"
 
 aws ec2 authorize-security-group-ingress --group-id $DB_SG_ID --protocol tcp --port 3306 --source-group $WEB_SG_ID --region $REGION > /dev/null
-echo -e "${GREEN}   Database:   Port 3306 (MySQL) nur von Webserver-SG${NC}"
+echo -e "${GREEN}   ✓ Database:   Port 3306 (MySQL) nur von Webserver-SG${NC}"
 
 aws ec2 authorize-security-group-ingress --group-id $DB_SG_ID --protocol tcp --port 22 --cidr 0.0.0.0/0 --region $REGION > /dev/null
-echo -e "${GREEN}   Database:   Port 22 (SSH) offen fuer 0.0.0.0/0${NC}"
+echo -e "${GREEN}   ✓ Database:   Port 22 (SSH) offen für 0.0.0.0/0${NC}"
 
 echo ""
 echo -e "${GREEN}${BOLD}   ✓ SECURITY GROUPS KONFIGURIERT${NC}"
@@ -178,7 +178,7 @@ echo -e "${BOLD}[PHASE 3/7]${NC} ${MAGENTA}INFRASTRUCTURE AS CODE - GENERIERUNG$
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════════════${NC}"
 echo ""
 
-echo -e "${YELLOW}   Erstelle User-Data Scripts...${NC}"
+echo -e "${YELLOW}   📝 Erstelle User-Data Scripts...${NC}"
 cat > db-userdata.sh << 'DBEOF'
 #!/bin/bash
 exec > >(tee /var/log/user-data.log)
@@ -250,7 +250,7 @@ echo -e "${BOLD}[PHASE 4/7]${NC} ${MAGENTA}DATABASE SERVER DEPLOYMENT${NC}"
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════════════${NC}"
 echo ""
 
-echo -e "${YELLOW}   Starte Database Server Instanz...${NC}"
+echo -e "${YELLOW}   🚀 Starte Database Server Instanz...${NC}"
 DB_INSTANCE_ID=$(aws ec2 run-instances \
     --image-id $AMI_ID \
     --instance-type $INSTANCE_TYPE \
@@ -262,8 +262,8 @@ DB_INSTANCE_ID=$(aws ec2 run-instances \
     --query 'Instances[0].InstanceId' \
     --output text)
 
-echo -e "${GREEN}   Instanz gestartet: ${BOLD}${DB_INSTANCE_ID}${NC}"
-echo -e "${YELLOW}   Warte bis Instanz laeuft...${NC}"
+echo -e "${GREEN}   ✓ Instanz gestartet: ${BOLD}${DB_INSTANCE_ID}${NC}"
+echo -e "${YELLOW}   ⏳ Warte bis Instanz läuft...${NC}"
 
 aws ec2 wait instance-running --instance-ids $DB_INSTANCE_ID --region $REGION
 
@@ -273,18 +273,18 @@ DB_PRIVATE_IP=$(aws ec2 describe-instances \
     --query 'Reservations[0].Instances[0].PrivateIpAddress' \
     --output text)
 
-echo -e "${GREEN}   Instanz laeuft${NC}"
-echo -e "${GREEN}   Private IP: ${BOLD}${DB_PRIVATE_IP}${NC}"
+echo -e "${GREEN}   ✓ Instanz läuft${NC}"
+echo -e "${GREEN}   ✓ Private IP: ${BOLD}${DB_PRIVATE_IP}${NC}"
 echo ""
-echo -e "${YELLOW}   Warte 120 Sekunden fuer MariaDB Installation & Konfiguration...${NC}"
-echo -n "   "
+echo -e "${YELLOW}   ⏰ Warte 120 Sekunden für MariaDB Installation & Konfiguration...${NC}"
 
-# Progress Bar - ein Punkt alle 10 Sekunden
-for i in {1..12}; do
-    sleep 10
-    echo -n "."
+# Progress Bar
+for i in {1..120}; do
+    if [ $((i % 10)) -eq 0 ]; then
+        echo -ne "${CYAN}   ▓${NC}"
+    fi
+    sleep 1
 done
-echo ""
 echo ""
 
 echo -e "${GREEN}${BOLD}   ✓ DATABASE SERVER BEREIT${NC}"
@@ -298,7 +298,7 @@ echo -e "${BOLD}[PHASE 5/7]${NC} ${MAGENTA}WEBSERVER DEPLOYMENT${NC}"
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════════════${NC}"
 echo ""
 
-echo -e "${YELLOW}   Erstelle Webserver User-Data...${NC}"
+echo -e "${YELLOW}   📝 Erstelle Webserver User-Data...${NC}"
 cat > web-userdata.sh << 'WEBEOF'
 #!/bin/bash
 exec > >(tee /var/log/user-data.log)
@@ -388,7 +388,7 @@ EOF
 
 echo -e "${GREEN}   ✓ cloud-init-webserver.yaml für Versionsverwaltung erstellt${NC}"
 echo ""
-echo -e "${YELLOW}   Starte Webserver Instanz...${NC}"
+echo -e "${YELLOW}   🚀 Starte Webserver Instanz...${NC}"
 WEB_INSTANCE_ID=$(aws ec2 run-instances \
     --image-id $AMI_ID \
     --instance-type $INSTANCE_TYPE \
@@ -400,8 +400,8 @@ WEB_INSTANCE_ID=$(aws ec2 run-instances \
     --query 'Instances[0].InstanceId' \
     --output text)
 
-echo -e "${GREEN}   Instanz gestartet: ${BOLD}${WEB_INSTANCE_ID}${NC}"
-echo -e "${YELLOW}   Warte bis Instanz laeuft...${NC}"
+echo -e "${GREEN}   ✓ Instanz gestartet: ${BOLD}${WEB_INSTANCE_ID}${NC}"
+echo -e "${YELLOW}   ⏳ Warte bis Instanz läuft...${NC}"
 
 aws ec2 wait instance-running --instance-ids $WEB_INSTANCE_ID --region $REGION
 
@@ -411,8 +411,8 @@ WEB_PUBLIC_IP=$(aws ec2 describe-instances \
     --query 'Reservations[0].Instances[0].PublicIpAddress' \
     --output text)
 
-echo -e "${GREEN}   Instanz laeuft${NC}"
-echo -e "${GREEN}   Public IP: ${BOLD}${WEB_PUBLIC_IP}${NC}"
+echo -e "${GREEN}   ✓ Instanz läuft${NC}"
+echo -e "${GREEN}   ✓ Public IP: ${BOLD}${WEB_PUBLIC_IP}${NC}"
 echo ""
 echo -e "${GREEN}${BOLD}   ✓ WEBSERVER BEREIT${NC}"
 echo ""
@@ -425,7 +425,7 @@ echo -e "${BOLD}[PHASE 6/7]${NC} ${MAGENTA}DEPLOYMENT-DOKUMENTATION${NC}"
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════════════${NC}"
 echo ""
 
-echo -e "${YELLOW}   Speichere Deployment-Informationen...${NC}"
+echo -e "${YELLOW}   💾 Speichere Deployment-Informationen...${NC}"
 cat > deployment-info.json << EOF
 {
   "deployment_date": "$(date -u +"%Y-%m-%d %H:%M:%S UTC")",
@@ -478,64 +478,67 @@ cat << "EOF"
 EOF
 echo -e "${NC}"
 
-echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
-echo -e "${CYAN}|${NC} ${BOLD}DEPLOYMENT UEBERSICHT${NC}                                              ${CYAN}|${NC}"
-echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
-printf "${CYAN}|${NC} %-69s ${CYAN}|${NC}\n" ""
-printf "${CYAN}|${NC}   ${BOLD}${BLUE}Database Server:${NC}%-50s ${CYAN}|${NC}\n" ""
-printf "${CYAN}|${NC}     Instance ID:    ${GREEN}%-45s${NC} ${CYAN}|${NC}\n" "$DB_INSTANCE_ID"
-printf "${CYAN}|${NC}     Private IP:     ${GREEN}%-45s${NC} ${CYAN}|${NC}\n" "$DB_PRIVATE_IP"
-printf "${CYAN}|${NC}     Security Group: ${GREEN}%-45s${NC} ${CYAN}|${NC}\n" "$DB_SG_ID"
-printf "${CYAN}|${NC} %-69s ${CYAN}|${NC}\n" ""
-printf "${CYAN}|${NC}   ${BOLD}${BLUE}Webserver:${NC}%-56s ${CYAN}|${NC}\n" ""
-printf "${CYAN}|${NC}     Instance ID:    ${GREEN}%-45s${NC} ${CYAN}|${NC}\n" "$WEB_INSTANCE_ID"
-printf "${CYAN}|${NC}     Public IP:      ${GREEN}%-45s${NC} ${CYAN}|${NC}\n" "$WEB_PUBLIC_IP"
-printf "${CYAN}|${NC}     Security Group: ${GREEN}%-45s${NC} ${CYAN}|${NC}\n" "$WEB_SG_ID"
-printf "${CYAN}|${NC} %-69s ${CYAN}|${NC}\n" ""
-echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
-echo ""
-echo ""
-
-echo -e "${CYAN}+=========================================================================${NC}"
-echo -e "${CYAN}|${NC}                                                                         ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}                       ${BOLD}${GREEN}NEXTCLOUD INSTALLATION${NC}                        ${CYAN}|${NC}"
-echo -e "${CYAN}|${NC}                                                                         ${CYAN}|${NC}"
-printf "${CYAN}|${NC}                          ${BOLD}${MAGENTA}%-38s${NC}  ${CYAN}|${NC}\n" "http://$WEB_PUBLIC_IP"
-echo -e "${CYAN}|${NC}                                                                         ${CYAN}|${NC}"
-echo -e "${CYAN}+=========================================================================${NC}"
-echo ""
+echo -e "${CYAN}┌─────────────────────────────────────────────────────────────────────┐${NC}"
+echo -e "${CYAN}│${NC} ${BOLD}DEPLOYMENT ÜBERSICHT${NC}                                              ${CYAN}│${NC}"
+echo -e "${CYAN}├─────────────────────────────────────────────────────────────────────┤${NC}"
+echo -e "${CYAN}│${NC}                                                                     ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  ${BOLD}${BLUE}Database Server:${NC}                                               ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}    Instance ID:    ${GREEN}${DB_INSTANCE_ID}${NC}                ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}    Private IP:     ${GREEN}${DB_PRIVATE_IP}${NC}                          ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}    Security Group: ${GREEN}${DB_SG_ID}${NC}          ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}                                                                     ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  ${BOLD}${BLUE}Webserver:${NC}                                                     ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}    Instance ID:    ${GREEN}${WEB_INSTANCE_ID}${NC}                ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}    Public IP:      ${GREEN}${WEB_PUBLIC_IP}${NC}                           ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}    Security Group: ${GREEN}${WEB_SG_ID}${NC}          ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}                                                                     ${CYAN}│${NC}"
+echo -e "${CYAN}└─────────────────────────────────────────────────────────────────────┘${NC}"
 echo ""
 
-echo -e "${YELLOW}${BOLD}WICHTIG:${NC} Warte ${YELLOW}2-3 Minuten${NC} bis Nextcloud komplett installiert ist"
+echo -e "${BOLD}${MAGENTA}🌐 NEXTCLOUD URL:${NC}"
+echo -e "${GREEN}${BOLD}   ➜  http://${WEB_PUBLIC_IP}${NC}"
 echo ""
 
-echo -e "${BOLD}${BLUE}DATENBANK-ZUGANGSDATEN FUER SETUP-ASSISTENT:${NC}"
-echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
-printf "${CYAN}|${NC}   Datenbank-Typ:         ${GREEN}%-42s${NC} ${CYAN}|${NC}\n" "MySQL/MariaDB"
-printf "${CYAN}|${NC}   Datenbank-Host:        ${GREEN}%-42s${NC} ${CYAN}|${NC}\n" "$DB_PRIVATE_IP"
-printf "${CYAN}|${NC}   Datenbank-Name:        ${GREEN}%-42s${NC} ${CYAN}|${NC}\n" "nextcloud"
-printf "${CYAN}|${NC}   Datenbank-Benutzer:    ${GREEN}%-42s${NC} ${CYAN}|${NC}\n" "nextcloud"
-printf "${CYAN}|${NC}   Datenbank-Passwort:    ${GREEN}%-42s${NC} ${CYAN}|${NC}\n" "$DB_NC_PASSWORD"
-printf "${CYAN}|${NC}   Datenverzeichnis:      ${GREEN}%-42s${NC} ${CYAN}|${NC}\n" "/var/nextcloud-data"
-echo -e "${CYAN}+-----------------------------------------------------------------------+${NC}"
+echo -e "${YELLOW}⏰ ${BOLD}WICHTIG:${NC}"
+echo -e "   • Warte ${YELLOW}2-3 Minuten${NC} bis Nextcloud komplett installiert ist"
+echo -e "   • Öffne dann die URL im Browser"
+echo -e "   • Der Setup-Assistent wird automatisch angezeigt"
 echo ""
 
-echo -e "${BOLD}${BLUE}GENERIERTE DATEIEN:${NC}"
-echo -e "   - ${GREEN}deployment-info.json${NC}        Alle Deployment-Details & Passwoerter"
-echo -e "   - ${GREEN}cloud-init-database.yaml${NC}    Database Server Konfiguration"
-echo -e "   - ${GREEN}cloud-init-webserver.yaml${NC}   Webserver Konfiguration"
+echo -e "${BOLD}${BLUE}🔐 DATENBANK-ZUGANGSDATEN FÜR SETUP-ASSISTENT:${NC}"
+echo -e "${CYAN}┌─────────────────────────────────────────────────────────────────────┐${NC}"
+echo -e "${CYAN}│${NC}  Datenbank-Typ:         ${GREEN}MySQL/MariaDB${NC}                          ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Datenbank-Host:        ${GREEN}${DB_PRIVATE_IP}${NC}                       ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Datenbank-Name:        ${GREEN}nextcloud${NC}                              ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Datenbank-Benutzer:    ${GREEN}nextcloud${NC}                              ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Datenbank-Passwort:    ${GREEN}${DB_NC_PASSWORD}${NC}    ${CYAN}│${NC}"
+echo -e "${CYAN}│${NC}  Datenverzeichnis:      ${GREEN}/var/nextcloud-data${NC}                    ${CYAN}│${NC}"
+echo -e "${CYAN}└─────────────────────────────────────────────────────────────────────┘${NC}"
 echo ""
 
-echo -e "${BOLD}${BLUE}LOGS PRUEFEN:${NC}"
-echo -e "   - Database:  ${YELLOW}aws ec2 get-console-output --instance-id ${DB_INSTANCE_ID}${NC}"
-echo -e "   - Webserver: ${YELLOW}aws ec2 get-console-output --instance-id ${WEB_INSTANCE_ID}${NC}"
+echo -e "${BOLD}${BLUE}📝 INSTALLATION ABSCHLIESSEN:${NC}"
+echo -e "   ${CYAN}1.${NC} Öffne: ${GREEN}http://${WEB_PUBLIC_IP}${NC}"
+echo -e "   ${CYAN}2.${NC} Erstelle Admin-Account (Username + Passwort frei wählbar)"
+echo -e "   ${CYAN}3.${NC} Trage obige Datenbank-Daten ein"
+echo -e "   ${CYAN}4.${NC} Klicke ${GREEN}'Installation abschließen'${NC}"
 echo ""
 
-echo -e "${BOLD}${BLUE}CLEANUP:${NC}"
-echo -e "   - Zum Loeschen: ${YELLOW}bash cleanup.sh${NC}"
+echo -e "${BOLD}${BLUE}📂 GENERIERTE DATEIEN:${NC}"
+echo -e "   ${CYAN}•${NC} ${GREEN}deployment-info.json${NC}        - Alle Deployment-Details & Passwörter"
+echo -e "   ${CYAN}•${NC} ${GREEN}cloud-init-database.yaml${NC}    - Database Server Konfiguration"
+echo -e "   ${CYAN}•${NC} ${GREEN}cloud-init-webserver.yaml${NC}   - Webserver Konfiguration"
+echo ""
+
+echo -e "${BOLD}${BLUE}🔍 LOGS PRÜFEN:${NC}"
+echo -e "   ${CYAN}•${NC} Database: ${YELLOW}aws ec2 get-console-output --instance-id ${DB_INSTANCE_ID} --region ${REGION}${NC}"
+echo -e "   ${CYAN}•${NC} Webserver: ${YELLOW}aws ec2 get-console-output --instance-id ${WEB_INSTANCE_ID} --region ${REGION}${NC}"
+echo ""
+
+echo -e "${BOLD}${BLUE}🗑️  CLEANUP:${NC}"
+echo -e "   ${CYAN}•${NC} Zum Löschen: ${YELLOW}bash cleanup.sh${NC}"
 echo ""
 
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}${BOLD}Deployment erfolgreich abgeschlossen um $(date '+%H:%M:%S')${NC}"
+echo -e "${GREEN}${BOLD}✓ Deployment erfolgreich abgeschlossen um $(date '+%H:%M:%S')${NC}"
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════════════${NC}"
 echo ""
