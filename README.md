@@ -1,306 +1,593 @@
-# Nextcloud Cloud Deployment - Modul 346
+# Nextcloud Cloud Deployment - AWS Automatisierung
 
-Automatisierte Installation von Nextcloud auf AWS mit separaten Web- und Datenbankservern.
+Vollautomatische Nextcloud-Installation auf AWS mit zwei separaten EC2-Instanzen (Webserver + Datenbank).
 
-## 📋 Projektübersicht
+**Projekt:** Modul 346 - Cloudlösungen konzipieren und realisieren  
+**Team:** Seid Veseli, Amar Ibraimi, Leandro Graf  
+**Institution:** GBS St.Gallen
 
-Dieses Projekt erfüllt die Anforderungen des Modul 346 Projektauftrags:
-- ✅ Nextcloud Community Edition (Archive-Installation)
-- ✅ Separate Server für Webserver und Datenbank
-- ✅ Infrastructure as Code (Cloud-Init)
-- ✅ Vollautomatisierte Installation
-- ✅ Kein Docker, kein Web Installer
+---
 
-## 👥 Team
+## Inhaltsverzeichnis
 
+- [Quick Start](#quick-start)
+- [Voraussetzungen](#voraussetzungen)
+- [Installation](#installation)
+- [Nextcloud konfigurieren](#nextcloud-konfigurieren)
+- [Ressourcen löschen](#ressourcen-löschen)
+- [Troubleshooting](#troubleshooting)
+- [Nützliche Befehle](#nützliche-befehle)
 
+---
 
-## 🎯 Architektur
+## Quick Start
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    AWS Cloud                        │
-│                                                     │
-│  ┌──────────────────┐        ┌──────────────────┐ │
-│  │  Web Server      │◄──────►│  DB Server       │ │
-│  │                  │ Port   │                  │ │
-│  │  - Apache 2.4    │ 3306   │  - MariaDB       │ │
-│  │  - PHP 8.1       │        │  - nextcloud DB  │ │
-│  │  - Nextcloud     │        │                  │ │
-│  │    28.0.1        │        │                  │ │
-│  └──────────────────┘        └──────────────────┘ │
-│         │                                          │
-│         │ Port 80                                  │
-│         ▼                                          │
-│  ┌──────────────────┐                             │
-│  │  Internet        │                             │
-│  │  (Public IP)     │                             │
-│  └──────────────────┘                             │
-└─────────────────────────────────────────────────────┘
-```
+```bash
+# 1. Repository klonen
+git clone https://github.com/seid950/m346-nextcloud-projekt.git
+cd m346-nextcloud-projekt
 
-## 🚀 Installation
+# 2. Deployment starten
+bash scripts/deploy.sh
 
-### Voraussetzungen
+# 3. Mit 'j' bestätigen und warten (~4 Minuten)
 
-1. **AWS Account** (AWS Academy Student Lab)
-2. **AWS CLI** installiert
-3. **Git Bash** (auf Windows) oder Bash Terminal
-4. **SSH Key Pair** namens `vockey` in AWS Region `us-east-1`
+# 4. Nextcloud-URL im Browser öffnen (wird angezeigt)
 
-### AWS CLI Installation (Windows)
+# 5. Setup-Assistent ausfüllen mit angezeigten Datenbank-Daten
 
-```powershell
-# Option 1: Mit winget
-winget install Amazon.AWSCLI
-
-# Option 2: Manuell
-# Download von: https://awscli.amazonaws.com/AWSCLIV2.msi
+# 6. Fertig! Nextcloud läuft.
 ```
 
-### AWS Credentials einrichten
+---
 
-1. Starte dein AWS Academy Lab
-2. Klicke auf "AWS Details" → "Show" bei AWS CLI credentials
-3. Kopiere die drei Zeilen (access_key, secret_key, session_token)
-4. Erstelle/Bearbeite `~/.aws/credentials`:
+## Voraussetzungen
 
-```ini
-[default]
-aws_access_key_id=DEINE_KEY_ID
-aws_secret_access_key=DEIN_SECRET
-aws_session_token=DEIN_TOKEN
+### AWS Account
+
+- ✅ **AWS Academy Learner Lab** gestartet
+- ✅ **AWS CLI** installiert und konfiguriert
+- ✅ **Key Pair** `vockey` verfügbar
+
+**AWS CLI testen:**
+```bash
+aws --version
+# Sollte zeigen: aws-cli/2.x.x oder höher
 ```
 
-5. Erstelle/Bearbeite `~/.aws/config`:
-
-```ini
-[default]
-region=us-east-1
-```
-
-6. Teste die Verbindung:
-
+**AWS Credentials prüfen:**
 ```bash
 aws sts get-caller-identity
+# Sollte deine AWS Account-Info zeigen
 ```
 
-### Deployment ausführen
+### Lokale Umgebung
+
+- ✅ **Bash-Shell** (Linux, macOS, oder WSL unter Windows)
+- ✅ **Git** installiert
+- ✅ **Internet-Verbindung**
+
+**Git testen:**
+```bash
+git --version
+# Sollte zeigen: git version 2.x.x oder höher
+```
+
+---
+
+## Installation
+
+### Schritt 1: Repository klonen
 
 ```bash
-# Repository klonen
-git clone <dein-repo-url>
-cd <repo-ordner>
+# Repository herunterladen
+git clone https://github.com/seid950/m346-nextcloud-projekt.git
 
-# Deploy-Script ausführbar machen
-chmod +x deploy.sh
+# In Projekt-Verzeichnis wechseln
+cd m346-nextcloud-projekt
 
-# Deployment starten
-bash deploy.sh
+# Inhalt prüfen
+ls -la
+# Sollte zeigen: README.md, DOKUMENTATION.md, scripts/
 ```
 
-**Dauer:** ~3-4 Minuten bis alles bereit ist.
+### Schritt 2: AWS Learner Lab starten
 
-### Was das Script macht
+1. **In AWS Academy einloggen**
+2. **Learner Lab öffnen**
+3. **"Start Lab" klicken**
+4. **Warten bis Status "ready" (grün)**
+5. **AWS CLI Credentials kopieren:**
+   - Klicke auf "AWS Details"
+   - Kopiere die Credentials
+   - Füge sie in `~/.aws/credentials` ein
 
-1. ✅ Überprüft AWS CLI Konfiguration
-2. ✅ Räumt alte Ressourcen auf
-3. ✅ Erstellt Security Groups mit korrekten Firewall-Regeln
-4. ✅ Generiert sichere Cloud-Init Konfigurationen
-5. ✅ Startet Datenbank-Server mit MariaDB
-6. ✅ Wartet bis Datenbank bereit ist
-7. ✅ Startet Webserver mit Apache + PHP + Nextcloud
-8. ✅ Gibt alle Zugangsdaten aus
-
-## 📝 Nextcloud Setup
-
-Nach dem Deployment (warte 2-3 Minuten):
-
-### 1. Browser öffnen
-
-```
-http://<PUBLIC_IP>
+**Credentials testen:**
+```bash
+aws ec2 describe-regions --region us-east-1
+# Sollte Liste von AWS Regionen zeigen
 ```
 
-Die URL wird am Ende des Deployments angezeigt.
-
-### 2. Setup-Assistent ausfüllen
-
-**Admin-Account erstellen:**
-- Benutzername: `admin` (oder beliebig)
-- Passwort: Sicheres Passwort wählen (mind. 8 Zeichen)
-
-**Datenverzeichnis:**
-```
-/var/nextcloud-data
-```
-
-**Datenbank konfigurieren:**
-- Datenbank-Typ: `MySQL/MariaDB`
-- Datenbank-Host: `<DB_PRIVATE_IP>` (wird ausgegeben)
-- Datenbank-Name: `nextcloud`
-- Datenbank-Benutzer: `nextcloud`
-- Datenbank-Passwort: `<wird ausgegeben>`
-
-### 3. Installation abschließen
-
-Klicke auf "Installation abschließen" und warte 1-2 Minuten.
-
-## 🧪 Testing
-
-### Test 1: Server-Erreichbarkeit
+### Schritt 3: Deployment ausführen
 
 ```bash
-# Web Server HTTP-Zugriff testen
-curl -I http://<PUBLIC_IP>
-
-# Sollte "HTTP/1.1 200 OK" oder Redirect zurückgeben
+# Deployment-Script starten
+bash scripts/deploy.sh
 ```
 
-### Test 2: Datenbank-Verbindung
+**Was passiert jetzt:**
+
+1. **Konfiguration anzeigen:**
+   ```
+   +-----------------------------------------------------------------------+
+   | DEPLOYMENT-KONFIGURATION                                              |
+   +-----------------------------------------------------------------------+
+   |  AWS Region:           us-east-1                                      |
+   |  Instance Type:        t2.micro                                       |
+   |  AMI ID:               ami-03deb8c961063af8c                          |
+   |  Key Pair:             vockey                                         |
+   |  Nextcloud Version:    Latest Stable                                  |
+   |  Webserver:            Apache 2.4 + PHP 8.1                           |
+   |  Datenbank:            MariaDB 10.6                                   |
+   +-----------------------------------------------------------------------+
+   ```
+
+2. **Bestätigung:**
+   ```
+   Deployment starten? [j/n]:
+   ```
+   → Tippe `j` und drücke Enter
+
+3. **Deployment läuft (ca. 4 Minuten):**
+   - Phase 1/7: Cleanup alter Ressourcen
+   - Phase 2/7: Security Groups erstellen
+   - Phase 3/7: User-Data Scripts generieren
+   - Phase 4/7: Database Server deployen (+ 120s Wartezeit)
+   - Phase 5/7: Webserver deployen
+   - Phase 6/7: Deployment-Info speichern
+   - Phase 7/7: Informationen ausgeben
+
+4. **Erfolgsmeldung:**
+   ```
+   +=========================================================================+
+   |                                                                         |
+   |                       NEXTCLOUD INSTALLATION                            |
+   |                                                                         |
+   |                          http://XX.XX.XX.XX                             |
+   |                                                                         |
+   +=========================================================================+
+   ```
+
+**WICHTIG:** Kopiere die URL und die Datenbank-Zugangsdaten!
+
+### Schritt 4: Warten
+
+**Nach dem Deployment:**
+- ⏱️ Warte **2-3 Minuten** bis Nextcloud vollständig installiert ist
+- Der Webserver muss Apache starten, PHP konfigurieren und Nextcloud entpacken
+- Die Datenbank muss MariaDB initialisieren
+
+**Testen ob bereit:**
+```bash
+# In Browser öffnen oder curl testen:
+curl http://XX.XX.XX.XX
+
+# Wenn du HTML-Code siehst → Nextcloud ist bereit!
+```
+
+---
+
+## Nextcloud konfigurieren
+
+### Schritt 1: Nextcloud-URL öffnen
+
+1. **Browser öffnen** (Chrome, Firefox, Safari, etc.)
+2. **URL eingeben:** `http://XX.XX.XX.XX` (aus Terminal kopieren)
+3. **Enter drücken**
+
+**Was du siehst:**
+- Nextcloud Setup-Assistent
+- Felder für Admin-Account
+- Felder für Datenbank-Verbindung
+
+### Schritt 2: Admin-Account erstellen
+
+**Im oberen Teil des Setup-Assistenten:**
+
+```
+Benutzername:  admin              ← Frei wählbar
+Passwort:      DeinPasswort123!   ← Frei wählbar (min. 8 Zeichen)
+```
+
+**Empfehlung:** Sichere Passwörter verwenden!
+
+### Schritt 3: Datenbank-Verbindung konfigurieren
+
+**Kopiere die Daten aus dem Terminal:**
+
+Das Deployment-Script zeigt diese Box:
+
+```
++-----------------------------------------------------------------------+
+| DATENBANK-ZUGANGSDATEN FUER SETUP-ASSISTENT:                          |
++-----------------------------------------------------------------------+
+|   Datenbank-Typ:         MySQL/MariaDB                                |
+|   Datenbank-Host:        172.31.XX.XX                                 |
+|   Datenbank-Name:        nextcloud                                    |
+|   Datenbank-Benutzer:    nextcloud                                    |
+|   Datenbank-Passwort:    XXXXXXXXXXXXXXXXXXXXXXXX                     |
+|   Datenverzeichnis:      /var/nextcloud-data                          |
++-----------------------------------------------------------------------+
+```
+
+**Im Setup-Assistenten eintragen:**
+
+1. **Datenbank-Typ:** `MySQL/MariaDB` auswählen
+2. **Datenbank-Benutzer:** `nextcloud`
+3. **Datenbank-Passwort:** `[Das lange Passwort aus Terminal kopieren!]`
+4. **Datenbank-Name:** `nextcloud`
+5. **Datenbank-Host:** `172.31.XX.XX` (Private IP aus Terminal)
+6. **Datenverzeichnis:** `/var/nextcloud-data`
+
+**WICHTIG:** 
+- ⚠️ Das Datenbank-Passwort ist LANG (24 Zeichen) - kopiere es genau!
+- ⚠️ Verwende die **Private IP** (172.31.x.x), nicht die Public IP!
+
+### Schritt 4: Installation abschließen
+
+1. **Button klicken:** "Installation abschließen"
+2. **Warten:** 30-60 Sekunden
+3. **Fertig!** Nextcloud Dashboard erscheint
+
+**Was du jetzt siehst:**
+- Nextcloud Dashboard
+- Dateien-App
+- Willkommens-Dialog (kann geschlossen werden)
+
+---
+
+## Ressourcen löschen
+
+**WICHTIG:** Vergiss nicht, die AWS-Ressourcen zu löschen wenn du fertig bist!
+
+### Cleanup-Script ausführen
 
 ```bash
-# SSH auf Webserver
-ssh -i vockey.pem ubuntu@<WEB_PUBLIC_IP>
+# In Projekt-Verzeichnis
+cd m346-nextcloud-projekt
 
-# Datenbank-Verbindung testen
-mysql -h <DB_PRIVATE_IP> -u nextcloud -p
-# Passwort eingeben: <DB_NC_PASSWORD>
-
-# SQL-Test
-SHOW DATABASES;
-USE nextcloud;
-SHOW TABLES;
+# Cleanup starten
+bash scripts/cleanup.sh
 ```
 
-### Test 3: Nextcloud Funktionalität
+**Was passiert:**
 
-1. ✅ Login mit Admin-Account
-2. ✅ Datei hochladen
-3. ✅ Ordner erstellen
-4. ✅ Datei teilen
-5. ✅ Benutzerverwaltung öffnen
+1. **Ressourcen anzeigen:**
+   ```
+   +-----------------------------------------------------------------------+
+   | ZU LOESCHENDE RESSOURCEN                                              |
+   +-----------------------------------------------------------------------+
+   |   Database Instance:   i-0a1b2c3d4e5f6g7h8                            |
+   |   Webserver Instance:  i-9h8g7f6e5d4c3b2a1                            |
+   |   Database SG:          sg-1234567890abcdef0                          |
+   |   Webserver SG:         sg-0fedcba0987654321                          |
+   +-----------------------------------------------------------------------+
+   ```
 
-## 📊 Deployment-Informationen
+2. **Bestätigung:**
+   ```
+   Fortfahren mit dem Loeschen? [ja/nein]:
+   ```
+   → Tippe `ja` und drücke Enter
 
-Alle Details werden in `deployment-info.json` gespeichert:
+3. **Löschen (ca. 1 Minute):**
+   - EC2-Instanzen terminieren
+   - Security Groups löschen
+   - Bestätigung ausgeben
 
-```json
-{
-  "deployment_date": "2024-12-07 15:30:00 UTC",
-  "region": "us-east-1",
-  "nextcloud_version": "28.0.1",
-  "database": {
-    "instance_id": "i-...",
-    "private_ip": "172.31.x.x",
-    "database_password": "..."
-  },
-  "webserver": {
-    "instance_id": "i-...",
-    "public_ip": "xx.xx.xx.xx",
-    "url": "http://xx.xx.xx.xx"
-  }
-}
+4. **Fertig:**
+   ```
+   +-----------------------------------------------------------------------+
+   | GELOESCHTE RESSOURCEN                                                 |
+   +-----------------------------------------------------------------------+
+   |   Database Instance terminiert                                        |
+   |   Webserver Instance terminiert                                       |
+   |   Database Security Group geloescht                                   |
+   |   Webserver Security Group geloescht                                  |
+   +-----------------------------------------------------------------------+
+   ```
+
+**Optional:** Lokale Dateien löschen
+- Wenn gefragt, kannst du auch die generierten lokalen Dateien löschen:
+  - `deployment-info.json`
+  - `cloud-init-database.yaml`
+  - `cloud-init-webserver.yaml`
+
+---
+
+## Troubleshooting
+
+### Problem 1: "AWS CLI not found"
+
+**Fehlermeldung:**
 ```
-
-## 🗑️ Cleanup
-
-Um alle Ressourcen zu löschen:
-
-```bash
-bash cleanup.sh
+bash: aws: command not found
 ```
-
-**Achtung:** Dies löscht permanent:
-- Beide EC2-Instanzen
-- Alle Security Groups
-- Optional: Lokale Konfigurationsdateien
-
-## 📁 Repository-Struktur
-
-```
-.
-├── README.md                      # Diese Datei
-├── deploy.sh                      # Hauptdeployment-Script
-├── cleanup.sh                     # Cleanup-Script
-├── cloud-init-database.yaml       # DB-Server Konfiguration (generiert)
-├── cloud-init-webserver.yaml      # Webserver Konfiguration (generiert)
-├── deployment-info.json           # Deployment-Details (generiert)
-└── docs/
-    ├── projektplanung.md          # Projektplanung und Aufgaben
-    ├── tests.md                   # Test-Dokumentation mit Screenshots
-    └── reflexion.md               # Persönliche Reflexionen
-```
-
-## 🔧 Troubleshooting
-
-### Problem: "AWS CLI not found"
 
 **Lösung:**
 ```bash
 # AWS CLI installieren
-winget install Amazon.AWSCLI
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
 
-# Terminal neu starten
+# Prüfen
+aws --version
 ```
 
-### Problem: "Could not connect to the endpoint URL"
+### Problem 2: "Deployment starten?" erscheint nicht
+
+**Fehlermeldung:**
+```
+Script läuft nicht / bricht sofort ab
+```
 
 **Lösung:**
 ```bash
-# AWS Credentials neu setzen
-aws configure
+# Prüfe ob Script ausführbar ist
+ls -la scripts/deploy.sh
 
-# Region: us-east-1
+# Wenn nicht ausführbar:
+chmod +x scripts/deploy.sh
+
+# Nochmal versuchen
+bash scripts/deploy.sh
 ```
 
-### Problem: "Nextcloud lädt nicht"
+### Problem 3: Nextcloud Setup-Assistent erscheint nicht
+
+**Problem:** Browser zeigt "Site can't be reached" oder lädt endlos
+
+**Lösung 1:** Warte länger
+```bash
+# Es kann 2-3 Minuten dauern!
+# Teste mit curl:
+curl http://XX.XX.XX.XX
+
+# Wenn "curl: (7) Failed to connect" → noch warten
+# Wenn HTML-Code → bereit!
+```
+
+**Lösung 2:** Logs prüfen
+```bash
+# Webserver-Logs ansehen
+aws ec2 get-console-output --instance-id i-XXXXXXXXX --region us-east-1
+
+# Suche nach Fehlern
+```
+
+### Problem 4: Datenbank-Verbindung fehlgeschlagen
+
+**Fehlermeldung im Setup:** "Can't connect to MySQL server"
+
+**Häufige Ursachen:**
+
+1. **Falsche Private IP verwendet**
+   - ✅ Verwende `172.31.XX.XX` (aus Terminal)
+   - ❌ NICHT die Public IP des DB-Servers verwenden!
+
+2. **Falsches Passwort**
+   - Das Passwort ist 24 Zeichen lang
+   - Kopiere es EXAKT aus dem Terminal
+   - Keine Leerzeichen am Anfang/Ende!
+
+3. **Datenbank noch nicht bereit**
+   - Warte 2-3 Minuten nach Deployment
+   - Database Server braucht Zeit für MariaDB-Installation
 
 **Lösung:**
 ```bash
-# Warte länger (bis zu 5 Minuten)
+# Prüfe ob Database Server läuft
+aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=nextcloud-db" \
+  --region us-east-1 \
+  --query 'Reservations[0].Instances[0].State.Name'
 
-# Status prüfen
-aws ec2 get-console-output --instance-id <WEB_INSTANCE_ID>
-
-# In den Logs nach Fehlern suchen
+# Sollte zeigen: "running"
 ```
 
-### Problem: "Database connection failed"
+### Problem 5: Setup sagt "Data directory is not writable"
+
+**Problem:** Berechtigungsfehler beim Datenverzeichnis
 
 **Lösung:**
 ```bash
-# 1. Prüfe ob DB-Server läuft
-aws ec2 describe-instances --instance-ids <DB_INSTANCE_ID>
+# SSH zum Webserver
+ssh -i vockey.pem ubuntu@XX.XX.XX.XX
 
-# 2. Prüfe Security Group (Port 3306 offen?)
-aws ec2 describe-security-groups --group-ids <DB_SG_ID>
+# Berechtigungen prüfen
+ls -ld /var/nextcloud-data/
 
-# 3. SSH auf Web-Server und teste Verbindung
-ssh -i vockey.pem ubuntu@<WEB_PUBLIC_IP>
-mysql -h <DB_PRIVATE_IP> -u nextcloud -p
+# Sollte zeigen: drwxr-xr-x www-data www-data
+
+# Falls falsch, korrigieren:
+sudo chown -R www-data:www-data /var/nextcloud-data/
+sudo chmod 755 /var/nextcloud-data/
 ```
 
-##  Sicherheitshinweise
+### Problem 6: AWS Learner Lab Session abgelaufen
 
-- ✅ Passwörter werden automatisch generiert (24 Zeichen)
-- ✅ Datenbank nur über interne IP erreichbar
-- ✅ Security Groups mit minimal notwendigen Ports
-- ⚠️ HTTP (nicht HTTPS) - für Produktion HTTPS einrichten!
-- ⚠️ SSH von überall - in Produktion einschränken!
+**Problem:** "An error occurred (AuthFailure)"
 
-##  Quellen
+**Lösung:**
+```bash
+# 1. In AWS Academy: "Start Lab" klicken
+# 2. Neue Credentials kopieren
+# 3. In ~/.aws/credentials einfügen
+# 4. Deployment neu starten
+```
 
-- Nextcloud Dokumentation: https://docs.nextcloud.com
-- AWS EC2 Dokumentation: https://docs.aws.amazon.com/ec2/
-- Cloud-Init Dokumentation: https://cloudinit.readthedocs.io/
-- MariaDB Dokumentation: https://mariadb.org/documentation/
+### Problem 7: Security Group already exists
 
-##  Lizenz
+**Fehlermeldung:** "A security group with the name 'nextcloud-web-sg' already exists"
 
-Dieses Projekt ist für Bildungszwecke im Rahmen des Modul 346.
+**Lösung:**
+```bash
+# Alte Security Groups manuell löschen
+aws ec2 delete-security-group --group-name nextcloud-web-sg --region us-east-1
+aws ec2 delete-security-group --group-name nextcloud-db-sg --region us-east-1
+
+# Deployment neu starten
+bash scripts/deploy.sh
+```
 
 ---
 
-**Projekt Status:** ✅ Abgeschlossen  
-**Letzte Aktualisierung:** Dezember 2024
+## Nützliche Befehle
+
+### AWS-Ressourcen prüfen
+
+**Alle Nextcloud-Instanzen anzeigen:**
+```bash
+aws ec2 describe-instances \
+  --filters "Name=tag:Project,Values=M346-Nextcloud" \
+  --region us-east-1 \
+  --query 'Reservations[*].Instances[*].[InstanceId,State.Name,PublicIpAddress,Tags[?Key==`Name`].Value|[0]]' \
+  --output table
+```
+
+**Security Groups anzeigen:**
+```bash
+aws ec2 describe-security-groups \
+  --filters "Name=group-name,Values=nextcloud-*" \
+  --region us-east-1 \
+  --query 'SecurityGroups[*].[GroupId,GroupName]' \
+  --output table
+```
+
+**Instance-Status prüfen:**
+```bash
+aws ec2 describe-instance-status \
+  --instance-ids i-XXXXXXXXX \
+  --region us-east-1
+```
+
+### Server-Logs ansehen
+
+**Webserver Console Output:**
+```bash
+aws ec2 get-console-output \
+  --instance-id i-XXXXXXXXX \
+  --region us-east-1 \
+  --output text > webserver.log
+
+# Log-Datei öffnen
+cat webserver.log
+```
+
+**Database Server Console Output:**
+```bash
+aws ec2 get-console-output \
+  --instance-id i-XXXXXXXXX \
+  --region us-east-1 \
+  --output text > database.log
+
+cat database.log
+```
+
+### SSH-Zugriff
+
+**Zum Webserver verbinden:**
+```bash
+ssh -i vockey.pem ubuntu@XX.XX.XX.XX
+
+# Apache-Status prüfen
+sudo systemctl status apache2
+
+# Nextcloud-Dateien anzeigen
+ls -la /var/www/html/
+
+# Logs anzeigen
+sudo tail -f /var/log/apache2/error.log
+```
+
+**Zum Database Server verbinden:**
+```bash
+# Erst zum Webserver
+ssh -i vockey.pem ubuntu@<WEB_PUBLIC_IP>
+
+# Dann von dort zum DB-Server (nur private IP!)
+ssh ubuntu@172.31.XX.XX
+
+# MariaDB-Status prüfen
+sudo systemctl status mariadb
+
+# MySQL verbinden
+sudo mysql -u root -p
+```
+
+### Nextcloud-Status prüfen
+
+```bash
+# Auf Webserver via SSH
+ssh -i vockey.pem ubuntu@XX.XX.XX.XX
+
+# Nextcloud occ (Command Line Tool)
+sudo -u www-data php /var/www/html/occ status
+
+# Sollte zeigen:
+# - installed: true
+# - version: XX.X.X
+# - versionstring: Nextcloud XX.X.X
+```
+
+### Deployment-Info anzeigen
+
+Nach dem Deployment wird eine `deployment-info.json` erstellt:
+
+```bash
+# Datei anzeigen
+cat deployment-info.json
+
+# Formatiert ausgeben (mit jq)
+cat deployment-info.json | jq .
+```
+
+**Enthält:**
+- Instance IDs
+- IP-Adressen
+- Security Group IDs
+- Passwörter (SICHER AUFBEWAHREN!)
+- Deployment-Zeitstempel
+
+---
+
+## Support & Kontakt
+
+**GitHub Repository:**  
+https://github.com/seid950/m346-nextcloud-projekt
+
+**Bei Problemen:**
+1. Prüfe [Troubleshooting](#troubleshooting)
+2. Schaue Logs an (siehe [Nützliche Befehle](#nützliche-befehle))
+3. Erstelle ein GitHub Issue
+
+**Team:**
+- Seid Veseli
+- Amar Ibraimi
+- Leandro Graf
+
+---
+
+## Weitere Dokumentation
+
+- **DOKUMENTATION.md** - Vollständige Projekt-Dokumentation
+  - Projektplanung
+  - Architektur
+  - Tests
+  - Reflexion
+  - Aufgabenverteilung
+
+---
+
+**Viel Erfolg mit Nextcloud! 🚀**
