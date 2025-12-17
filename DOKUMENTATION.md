@@ -1,7 +1,7 @@
 # Projektdokumentation - Nextcloud Cloud Deployment
 
 **Modul:** 346 - Cloudlösungen konzipieren und realisieren  
-**Team:** Seid Veseli, Amar Ibraimi, Leandro Graf  
+**Team:** Seid Veseli, Leandro Graf  
 **Institution:** GBS St.Gallen  
 **Abgabedatum:** Dezember 2024
 
@@ -391,7 +391,7 @@ bash scripts/cleanup.sh
 |---------|----------|--------|--------|
 | T1 | Deployment-Script Ausführung | ✅ | Seid Veseli |
 | T2 | Database Server Konfiguration | ✅ | Amar Ibraimi |
-| T3 | Webserver Konfiguration | ✅ | Leandro Graf |
+| T3 | Webserver Konfiguration | ✅ | Amar Ibraimi |
 | T4 | Netzwerk DB-Web Verbindung | ✅ | Seid Veseli |
 | T5 | Nextcloud Setup-Assistent | ✅ | Amar Ibraimi |
 | T6 | Nextcloud Funktionalität | ✅ | Leandro Graf |
