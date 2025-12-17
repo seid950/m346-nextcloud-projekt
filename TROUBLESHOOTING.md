@@ -22,7 +22,7 @@ Detaillierte Lösungen für alle Probleme beim Nextcloud-Deployment.
 
 **Fehlermeldung:**
 ```
-bash: aws: command not found
+bash: aws: command not founds
 ```
 
 **Ursache:** AWS CLI ist nicht installiert
