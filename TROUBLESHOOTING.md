@@ -657,8 +657,8 @@ aws sts get-caller-identity
 
 ```bash
 # Kopiere deine Credentials aus AWS Academy und führe aus:
-aws configure set aws_access_key_id ASIAIOSFODNN7EXAMPLE
-aws configure set aws_secret_access_key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+aws configure set aws_access_key_id ASIAIOSFODNN7EXXXXXX
+aws configure set aws_secret_access_key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXXXXXXXXX
 aws configure set aws_session_token "FwoGZXIvYXdzEBkaDC...dein Token..."
 aws configure set region us-east-1
 ```
