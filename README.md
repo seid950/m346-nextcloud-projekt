@@ -8,31 +8,6 @@ Vollautomatische Nextcloud-Installation auf AWS mit zwei separaten EC2-Instanzen
 
 ---
 
-## Quick Start
-
-```bash
-# 1. Repository klonen
-git clone https://github.com/seid950/m346-nextcloud-projekt.git
-cd m346-nextcloud-projekt
-
-# 2. AWS Credentials konfigurieren
-aws configure set aws_access_key_id ASIA...
-aws configure set aws_secret_access_key wJal...
-aws configure set aws_session_token "FwoG..."
-aws configure set region us-east-1
-
-# 3. Deployment starten
-bash scripts/deploy.sh
-
-# 4. Mit 'j' bestätigen, ~4 Min warten
-
-# 5. Nextcloud im Browser öffnen
-
-# 6. Fertig!
-```
-
----
-
 ## Inhaltsverzeichnis
 
 - [Voraussetzungen](#voraussetzungen)
@@ -40,19 +15,21 @@ bash scripts/deploy.sh
 - [Deployment](#deployment)
 - [Nextcloud Setup](#nextcloud-setup)
 - [Cleanup](#cleanup)
-- [Troubleshooting](#troubleshooting)
+- [Nützliche Befehle](#nützliche-befehle)
+- [Technische Details](#technische-details)
+- [Weitere Dokumentation](#weitere-dokumentation)
+- [Support](#support)
 
 ---
 
 ## Voraussetzungen
 
-### Was du brauchst
+- Linux-Terminal (Ubuntu, Debian, WSL2, oder andere Distribution)
+- AWS Academy Learner Lab Zugang
+- GitHub Account (Repository ist privat)
+- Internet-Verbindung
 
-- ✅ **Linux-Terminal** (Ubuntu, Debian, WSL2, oder andere Distribution)
-- ✅ **AWS Academy Learner Lab** Zugang
-- ✅ **Internet-Verbindung**
-
-**Hinweis:** Entwickelt mit **WSL2 (Ubuntu 22.04)**, funktioniert auf jedem Linux-System.
+**Entwickelt mit:** WSL2 (Ubuntu 22.04)
 
 ---
 
@@ -60,24 +37,19 @@ bash scripts/deploy.sh
 
 ### 1. AWS CLI installieren
 
-**Prüfen:**
 ```bash
+# Prüfen
 aws --version
-```
 
-**Falls "command not found":**
-```bash
+# Falls nicht installiert:
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo apt install unzip -y  # Falls unzip fehlt
 unzip awscliv2.zip
 sudo ./aws/install
 rm -rf aws awscliv2.zip
-aws --version  # Testen
-```
 
-**Unzip installieren falls nötig:**
-```bash
-sudo apt install unzip -y     # Ubuntu/Debian/WSL
-sudo dnf install unzip -y     # Fedora/RHEL
+# Testen
+aws --version
 ```
 
 ---
@@ -85,8 +57,8 @@ sudo dnf install unzip -y     # Fedora/RHEL
 ### 2. AWS Learner Lab starten
 
 1. Login: https://awsacademy.instructure.com
-2. **Modules** → **Learner Lab**
-3. **Start Lab** (warte bis grüner Punkt ✅)
+2. **Modules** → **Learner Lab** → **Start Lab**
+3. Warte bis grüner Punkt ✅
 
 ---
 
@@ -96,26 +68,21 @@ sudo dnf install unzip -y     # Fedora/RHEL
 1. Klicke **"AWS Details"** → **"Show"**
 2. Klicke **"Copy"**
 
-**Im Terminal - ZWEI METHODEN:**
+**Im Terminal (zwei Optionen):**
 
-**Option A - Mit aws configure (empfohlen):**
+**Option A - aws configure (schneller):**
 ```bash
-aws configure set aws_access_key_id ASIAXXXXXXXXXXXXXXXXX
-aws configure set aws_secret_access_key wJalrXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-aws configure set aws_session_token "FwoGZXIvYXdzEBkaDC...DEIN-TOKEN..."
+aws configure set aws_access_key_id ASIA...
+aws configure set aws_secret_access_key wJal...
+aws configure set aws_session_token "FwoG..."
 aws configure set region us-east-1
 ```
-**Ersetze mit deinen echten Credentials aus AWS Academy!**
 
-**Vorteile:**
-- Schnell und einfach
-- Bei neuer Session einfach nochmal ausführen
-
-**Option B - Manuell:**
+**Option B - nano:**
 ```bash
 mkdir -p ~/.aws
 nano ~/.aws/credentials
-# Credentials einfügen: Rechte Maustaste oder Shift+Insert
+# Credentials einfügen (Rechtsklick oder Shift+Insert)
 # Speichern: Ctrl+O, Enter, Ctrl+X
 ```
 
@@ -124,136 +91,169 @@ nano ~/.aws/credentials
 aws sts get-caller-identity
 ```
 
-**Sollte zeigen:**
-```json
-{
-    "UserId": "AIDAXXXXXXXXXX:user",
-    "Account": "123456789012",
-    "Arn": "arn:aws:iam::123456789012:user/awsstudent"
-}
+---
+
+### 4. Repository klonen (PRIVAT)
+
+#### 4.1 GitHub Personal Access Token erstellen
+
+**Dieses Repository ist privat. Du brauchst einen Token für den Zugriff.**
+
+**Schritt 1 - GitHub Settings öffnen:**
+1. Öffne deinen Browser
+2. Gehe zu: https://github.com
+3. Klicke oben rechts auf dein **Profilbild**
+4. Klicke auf **"Settings"** (im Dropdown-Menü)
+
+**Schritt 2 - Developer Settings:**
+1. Scrolle ganz nach unten in der linken Seitenleiste
+2. Klicke auf **"Developer settings"** (letzter Punkt)
+
+**Schritt 3 - Personal Access Tokens:**
+1. Klicke auf **"Personal access tokens"** (linke Seite)
+2. Klicke auf **"Tokens (classic)"**
+3. Klicke auf **"Generate new token"** (oben rechts)
+4. Klicke auf **"Generate new token (classic)"**
+
+**Schritt 4 - Token konfigurieren:**
+
+**Note (Name):**
 ```
+m346-nextcloud-projekt
+```
+
+**Expiration (Ablaufdatum):**
+- Wähle: **90 days** (oder länger)
+
+**Select scopes (Berechtigungen):**
+- ✅ Aktiviere nur: **`repo`**
+  - Dies aktiviert automatisch alle Sub-Optionen:
+  - `repo:status`
+  - `repo_deployment`
+  - `public_repo`
+  - `repo:invite`
+  - `security_events`
+
+**⚠️ WICHTIG:** Nur `repo` anklicken, nichts anderes!
+
+**Schritt 5 - Token generieren:**
+1. Scrolle ganz nach unten
+2. Klicke auf **"Generate token"** (grüner Button)
+
+**Schritt 6 - Token kopieren:**
+
+**Was du jetzt siehst:**
+```
+ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Ein langer Token mit ~40 Zeichen.
+
+**⚠️ SEHR WICHTIG:**
+- Dieser Token wird **nur EINMAL** angezeigt!
+- Kopiere ihn **SOFORT**:
+  1. Klicke auf das Copy-Icon 📋 neben dem Token
+  2. Oder markiere und kopiere (Ctrl+C / Cmd+C)
+- Speichere ihn in einem Text-Editor (Notepad, etc.)
+- Falls du ihn verlierst: Neuen Token erstellen
+
+**Token-Format:**
+- Beginnt mit: `ghp_`
+- Gefolgt von 36 zufälligen Zeichen
+- Beispiel: `ghp_1A2b3C4d5E6f7G8h9I0j1K2l3M4n5O6p7Q8r`
 
 ---
 
-### 4. Repository klonen
+#### 4.2 Klonen
 
 ```bash
+# Git installieren falls nötig
+sudo apt install git -y  # Ubuntu/Debian/WSL
+
+# Klonen
 cd ~
 git clone https://github.com/seid950/m346-nextcloud-projekt.git
-cd m346-nextcloud-projekt
-ls -la  # Prüfen
 ```
 
-**Falls Git nicht installiert:**
+**Authentifizierung:**
+- Username: Dein GitHub-Username
+- Password: Token (ghp_xxx...) - NICHT GitHub-Passwort!
+
+**Token cachen (optional):**
 ```bash
-sudo apt install git -y     # Ubuntu/Debian/WSL
-sudo dnf install git -y     # Fedora/RHEL
+git config --global credential.helper 'cache --timeout=3600'
+```
+
+**In Projekt wechseln:**
+```bash
+cd m346-nextcloud-projekt
+ls -la
 ```
 
 ---
 
 ## Deployment
 
-### Script ausführen
+### 1. Script-Berechtigung prüfen
 
 ```bash
-bash scripts/deploy.sh
+ls -la scripts/deploy-nextcloud.sh
+# Sollte 'x' haben: -rwxr-xr-x
+# Die 'x' bedeuten "ausführbar"
+
+# Falls nicht (-rw-r--r-- ohne x):
+chmod +x scripts/deploy-nextcloud.sh scripts/cleanup-nextcloud.sh
 ```
 
-### Was passiert
+---
 
-**1. Passwörter werden generiert**
-```
-Generiere sichere Passwoerter...
-   Root-Passwort generiert (24 Zeichen)
-   Nextcloud-DB-Passwort generiert (24 Zeichen)
-```
+### 2. Deployment starten
 
-**2. Konfiguration wird angezeigt**
-```
-+-----------------------------------------------------------------------+
-| DEPLOYMENT-KONFIGURATION                                              |
-+-----------------------------------------------------------------------+
-|  AWS Region:           us-east-1                                      |
-|  Instance Type:        t2.micro                                       |
-|  AMI ID:               ami-03deb8c961063af8c                          |
-|  Webserver:            Apache 2.4 + PHP 8.1                           |
-|  Datenbank:            MariaDB 10.6                                   |
-+-----------------------------------------------------------------------+
-```
-
-**3. Bestätigung**
-```
-Deployment starten? [j/n]:
-```
-
-**📸 SCREENSHOT 1:** Jetzt Screenshot machen!  
-Speichern als: `Screenshots/01_deployment_start.png`
-
-**Dann:** Tippe `j` und Enter
-
-**4. Deployment läuft**
-```
-[PHASE 1/7] CLEANUP ALTE RESSOURCEN
-[PHASE 2/7] SECURITY GROUPS ERSTELLEN
-[PHASE 3/7] INFRASTRUCTURE AS CODE
-[PHASE 4/7] DATABASE SERVER DEPLOYMENT
-   Warte 120 Sekunden fuer MariaDB...
-   ............
-[PHASE 5/7] WEBSERVER DEPLOYMENT
-[PHASE 6/7] DEPLOYMENT-DOKUMENTATION
-[PHASE 7/7] DEPLOYMENT ABGESCHLOSSEN
-```
-
-**Dauer:** ~4 Minuten  
-**⚠️ NICHT ABBRECHEN!**
-
-**5. Erfolg!**
-```
-    ██████╗ ███████╗██████╗ ██╗      ██████╗ ██╗   ██╗███████╗██████╗ 
-    ██╔══██╗██╔════╝██╔══██╗██║     ██╔═══██╗╚██╗ ██╔╝██╔════╝██╔══██╗
-    ██║  ██║█████╗  ██████╔╝██║     ██║   ██║ ╚████╔╝ █████╗  ██║  ██║
-    ██║  ██║██╔══╝  ██╔═══╝ ██║     ██║   ██║  ╚██╔╝  ██╔══╝  ██║  ██║
-    ██████╔╝███████╗██║     ███████╗╚██████╔╝   ██║   ███████╗██████╔╝
-    ╚═════╝ ╚══════╝╚═╝     ╚══════╝ ╚═════╝    ╚═╝   ╚══════╝╚═════╝ 
-
-+=========================================================================+
-|                       NEXTCLOUD INSTALLATION                            |
-|                          http://54.162.154.237                          |
-+=========================================================================+
-
-WICHTIG: Warte 2-3 Minuten bis Nextcloud komplett installiert ist
-
-DATENBANK-ZUGANGSDATEN FUER SETUP-ASSISTENT:
-+-----------------------------------------------------------------------+
-|   Datenbank-Typ:         MySQL/MariaDB                                |
-|   Datenbank-Host:        172.31.24.60                                 |
-|   Datenbank-Name:        nextcloud                                    |
-|   Datenbank-Benutzer:    nextcloud                                    |
-|   Datenbank-Passwort:    xY9mK2nL5pQ8rT1vW4zA7bC0                     |
-|   Datenverzeichnis:      /var/nextcloud-data                          |
-+-----------------------------------------------------------------------+
-```
-
-**📸 SCREENSHOT 2:** Jetzt Screenshot machen!  
-Speichern als: `Screenshots/02_deployment_complete.png`
-
-**Wichtig - Notiere:**
-- ✅ Nextcloud URL (Public IP)
-- ✅ Datenbank-Host (Private IP)
-- ✅ Datenbank-Passwort (24 Zeichen)
-
-### Warten bis bereit
-
-**Auch nach Script-Ende: Warte 2-3 Minuten!**
-
-**Testen:**
 ```bash
-curl http://54.162.154.237  # Deine IP!
+bash scripts/deploy-nextcloud.sh
 ```
 
-**Falls "Connection refused":** Noch 1-2 Min warten  
-**Falls HTML-Code:** Bereit! ✅
+---
+
+### 3. Deployment-Ablauf
+
+**Was passiert:**
+
+1. **Passwörter generieren** (24 Zeichen)
+2. **Konfiguration anzeigen** (Region, Instance Type, etc.)
+3. **Bestätigung:** Tippe `j` und Enter
+
+
+
+4. **Deployment läuft** (~4 Minuten):
+   - Phase 1/7: Cleanup
+   - Phase 2/7: Security Groups
+   - Phase 3/7: User-Data Scripts
+   - Phase 4/7: Database Server (Wartezeit: 120 Sek)
+   - Phase 5/7: Webserver
+   - Phase 6/7: Deployment-Info
+   - Phase 7/7: Fertig
+
+5. **Erfolg - Notiere:**
+   - Nextcloud URL (Public IP): `http://54.x.x.x`
+   - DB-Host (Private IP): `172.31.x.x`
+   - DB-Passwort: 24 Zeichen
+
+
+
+---
+
+### 4. Warten bis Nextcloud bereit
+
+**Warte 2-3 Minuten nach Script-Ende!**
+
+```bash
+# Testen (ersetze mit deiner IP):
+curl http://54.x.x.x
+
+# "Connection refused" = noch warten
+# HTML-Code = bereit 
+```
 
 ---
 
@@ -263,8 +263,7 @@ curl http://54.162.154.237  # Deine IP!
 
 Öffne: `http://DEINE-PUBLIC-IP`
 
-**📸 SCREENSHOT 3:** Setup-Assistent (bevor du was ausfüllst!)  
-Speichern als: `Screenshots/03_nextcloud_setup.png`
+
 
 ---
 
@@ -272,142 +271,71 @@ Speichern als: `Screenshots/03_nextcloud_setup.png`
 
 **Admin-Account:**
 - Benutzername: `admin`
-- Passwort: Dein gewähltes Passwort (merken!)
+- Passwort: Dein Admin-Passwort (merken!)
 
 **Datenverzeichnis:**
 - Ändere zu: `/var/nextcloud-data`
 
 **Datenbank (MySQL/MariaDB auswählen!):**
 - Benutzer: `nextcloud`
-- Passwort: `[24-Zeichen aus Terminal]`
+- Passwort: 24 Zeichen aus Terminal
 - Name: `nextcloud`
-- Host: `172.31.24.60` **(Private IP, NICHT localhost!)**
+- Host: `172.31.x.x` (Private IP - NICHT localhost!)
 
-**⚠️ WICHTIG:**
-- Private IP verwenden (172.31.x.x)
-- Passwort EXAKT kopieren
-- NICHT localhost verwenden!
+** WICHTIG:** Private IP verwenden (172.31.x.x), NICHT localhost!
 
 ---
 
 ### 3. Installation starten
 
-Klicke: **Installation abschließen**
+Klicke: **"Installation abschließen"**
 
 Warte 30-60 Sekunden...
 
-**📸 SCREENSHOT 4:** Dashboard  
-Speichern als: `Screenshots/04_nextcloud_running.png`
-
-**🎉 FERTIG!**
 
 ---
 
 ## Cleanup
 
-**Wichtig:** Ressourcen nach Nutzung löschen!
+**Ressourcen löschen:**
 
 ```bash
 cd ~/m346-nextcloud-projekt
-bash scripts/cleanup.sh
+bash scripts/cleanup-nextcloud.sh
 ```
 
 Bestätigung: `ja` (komplett ausschreiben!)
 
-**Dauer:** ~1 Minute
+Optional lokale Dateien: `nein` (empfohlen)
 
 ---
 
-## Troubleshooting
 
-**Alle Details:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-
-### Häufigste Probleme
-
-| Problem | Schnelle Lösung |
-|---------|-----------------|
-| **Credentials funktionieren nicht** | `aws configure set ...` nochmal ausführen |
-| **Nextcloud lädt nicht** | 2-3 Min warten, dann `curl http://IP` |
-| **DB-Verbindung fehlgeschlagen** | Private IP (172.31.x.x) verwenden! |
-| **AWS Session abgelaufen** | Neue Session starten, Credentials neu setzen |
-
-**Credentials schnell neu setzen:**
-```bash
-aws configure set aws_access_key_id ASIA...
-aws configure set aws_secret_access_key wJal...
-aws configure set aws_session_token "FwoG..."
-```
-
-**Private IP finden:**
-```bash
-cat deployment-info.json | grep private_ip
-```
-
-**Testen ob Nextcloud bereit:**
-```bash
-curl http://DEINE-IP
-# HTML = bereit, "Connection refused" = noch warten
-```
-
----
 
 ## Nützliche Befehle
 
-**AWS-Ressourcen anzeigen:**
 ```bash
+# AWS-Ressourcen anzeigen
 aws ec2 describe-instances \
   --filters "Name=tag:Project,Values=M346-Nextcloud" \
   --region us-east-1 \
   --output table
-```
 
-**Deployment-Info:**
-```bash
+# Deployment-Info
 cat deployment-info.json
-cat deployment-info.json | grep password  # Nur Passwörter
-cat deployment-info.json | grep ip        # Nur IPs
-```
-
-**Bei neuer AWS Session:**
-```bash
-# Credentials schnell aktualisieren
-aws configure set aws_access_key_id ASIA...
-aws configure set aws_secret_access_key wJal...
-aws configure set aws_session_token "FwoG..."
+cat deployment-info.json | grep password
+cat deployment-info.json | grep ip
 ```
 
 ---
 
-## Architektur
-
-```
-┌──────────────────────────────────────────────────┐
-│           AWS Cloud (us-east-1)                  │
-│                                                  │
-│  ┌──────────────┐         ┌──────────────┐      │
-│  │  Webserver   │         │  Database    │      │
-│  │  t2.micro    │◄────────│  t2.micro    │      │
-│  │              │         │              │      │
-│  │  Apache 2.4  │         │  MariaDB 10.6│      │
-│  │  PHP 8.1     │         │  nextcloud DB│      │
-│  │  Nextcloud   │         │              │      │
-│  │              │         │              │      │
-│  │  Public IP   │         │  Private IP  │      │
-│  │  Port 80, 22 │         │  Port 3306   │      │
-│  └──────────────┘         └──────────────┘      │
-│        │                                         │
-└────────┼─────────────────────────────────────────┘
-         │
-         ▼
-   [ Internet User ]
-```
 
 **Key Points:**
 - 2 separate EC2-Instanzen
-- Webserver: Public IP (Internet-erreichbar)
-- Database: Private IP (nur intern)
-- Security Groups als Firewall
-- Vollautomatisch per Script
+- Webserver: Public IP (Internet)
+- Database: Private IP (intern)
+- Security Groups: Firewall
+- Vollautomatisch: Cloud-Init
 
 ---
 
@@ -417,35 +345,25 @@ aws configure set aws_session_token "FwoG..."
 - OS: Windows 11 + WSL2 (Ubuntu 22.04)
 - AWS CLI: 2.15.10
 - Region: us-east-1
-- AMI: ami-03deb8c961063af8c (Ubuntu 24.04 LTS)
-- Instance Type: 2x t2.micro (Free Tier)
+- Instance Type: 2x t2.micro
+
+**Software-Stack:**
+- Webserver: Apache 2.4 + PHP 8.1
+- Database: MariaDB 10.6
+- Nextcloud: Latest Stable
 
 **Kompatibel mit:**
 - Alle Linux-Distributionen
 - macOS
 - Windows mit WSL/WSL2
 
-**Automatisierung:**
-- Infrastructure as Code
-- Cloud-Init (User-Data)
-- Bash-Scripts
-- Git-Versionierung
-
 ---
 
 ## Weitere Dokumentation
 
 - **DOKUMENTATION.md** - Vollständige Projekt-Dokumentation
-  - Projektziele, Planung, Architektur
-  - Herausforderungen & Lösungen
-  - Tests & Validierung
-  - Reflexion & Quellen
+- **TROUBLESHOOTING.md** - Detaillierte Problemlösungen (10 Probleme)
 
-- **TROUBLESHOOTING.md** - Detaillierte Problemlösungen
-  - 9 häufige Probleme mit Lösungen
-  - Logs ansehen, Debugging-Befehle
-
-- **QUICKSTART.md** - Ultra-kurze Anleitung
 
 ---
 
@@ -457,3 +375,4 @@ aws configure set aws_session_token "FwoG..."
 - Seid Veseli (Projektleiter, Scripts, Testing)
 - Amar Ibraimi (Database Specialist, Testing)
 - Leandro Graf (Documentation Lead)
+
