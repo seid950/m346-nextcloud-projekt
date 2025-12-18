@@ -71,19 +71,19 @@ Das Projekt wurde in 4 Phasen über 2 Wochen durchgeführt:
 
 | Phase | Zeitraum | Aktivitäten | Aufwand |
 |-------|----------|-------------|---------|
-| **1. Planung** | Woche 1, Tag 1-2 | Anforderungsanalyse, Technologie-Evaluation, Setup Git-Repo | 6h |
-| **2. Entwicklung** | Woche 1, Tag 3-5 | Script-Entwicklung, Cloud-Init, Testing | 20h |
-| **3. Testing** | Woche 2, Tag 1-2 | Systematische Tests, Debugging, Screenshots | 12h |
-| **4. Dokumentation** | Woche 2, Tag 3-4 | README, Testing-Protokoll, Reflexion | 9h |
+| **1. Planung** | Woche 1, Tag 1-2 | Anforderungsanalyse, Technologie-Evaluation, Setup Git-Repo | 3h |
+| **2. Entwicklung** | Woche 1, Tag 3-5 | Script-Entwicklung, Cloud-Init, Testing | 8h |
+| **3. Testing** | Woche 2, Tag 1-2 | Systematische Tests, Debugging, Screenshots | 3h |
+| **4. Dokumentation** | Woche 2, Tag 3-4 | README, Testing-Protokoll, Reflexion |6h |
 | **Total** | | | **47h** |
 
 ### 2.2 Meilensteine
 
-- ✅ **M1:** Repository erstellt und Team-Setup (05.12.2024)
-- ✅ **M2:** Basis-Deployment-Script funktionsfähig (08.12.2024)
-- ✅ **M3:** Datenbank- und Webserver-Integration abgeschlossen (10.12.2024)
-- ✅ **M4:** Alle Tests bestanden (12.12.2024)
-- ✅ **M5:** Dokumentation fertiggestellt (14.12.2024)
+- ✅ **M1:** Repository erstellt und Team-Setup 
+- ✅ **M2:** Basis-Deployment-Script funktionsfähig 
+- ✅ **M3:** Datenbank- und Webserver-Integration abgeschlossen 
+- ✅ **M4:** Alle Tests bestanden 
+- ✅ **M5:** Dokumentation fertiggestellt 
 
 ### 2.3 Risikomanagement
 
