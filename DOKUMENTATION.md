@@ -813,10 +813,4 @@ sudo -u www-data php /var/www/html/occ status
 
 ---
 
-**Projektabschluss:** 14.12.2024  
-**Status:** ✅ Alle Anforderungen erfüllt  
 
-
----
-
-*Ende der Dokumentation*
