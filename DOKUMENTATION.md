@@ -75,7 +75,7 @@ Das Projekt wurde in 4 Phasen über 2 Wochen durchgeführt:
 | **2. Entwicklung** | Woche 1, Tag 3-5 | Script-Entwicklung, Cloud-Init, Testing | 8h |
 | **3. Testing** | Woche 2, Tag 1-2 | Systematische Tests, Debugging, Screenshots | 3h |
 | **4. Dokumentation** | Woche 2, Tag 3-4 | README, Testing-Protokoll, Reflexion |6h |
-| **Total** | | | **47h** |
+| **Total** | | | **20h** |
 
 ### 2.2 Meilensteine
 
